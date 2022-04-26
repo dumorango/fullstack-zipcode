@@ -1,11 +1,8 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { useState, useEffect } from "react";
 import {
   ApolloClient,
   InMemoryCache,
-  ApolloProvider,
-  useQuery,
   gql,
 } from "@apollo/client";
 
@@ -15,7 +12,7 @@ const client = new ApolloClient({
 });
 
 function App() {
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState<any[]>([]);
   useEffect(() => {
     client
       .query({
