@@ -1,0 +1,26 @@
+{
+  "name": "fullstack-zipcode",
+  "version": "1.0.0",
+  "description": "A full stack application to fetch zipcode",
+  "main": "index.js",
+  "scripts": {
+    "start:frontend": "cd web && npm run start",
+    "start:backend": "cd api && npm run start",
+    "start": "run-p start:*",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dumorango/fullstack-zipcode.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dumorango/fullstack-zipcode/issues"
+  },
+  "homepage": "https://github.com/dumorango/fullstack-zipcode#readme",
+  "workspaces": [
+    "api",
+    "web"
+  ]
+}
