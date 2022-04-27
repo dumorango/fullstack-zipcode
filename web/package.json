@@ -10,12 +10,10 @@
     "@types/jest": "^27.4.1",
     "@types/node": "^16.11.31",
     "@types/react": "^18.0.8",
-    "@types/react-dom": "^18.0.0",
-    "graphql": "^15.8.0",
+    "@types/react-dom": "^18.0.0",    
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.6.3",
+    "react-scripts": "5.0.1",    
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -23,7 +21,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "codegen": "apollo codegen:generate --endpoint='http://localhost:4000' --target=typescript --includes='src/*.tsx' --tagName=gql"
+    "codegen": "apollo codegen:generate --endpoint='http://localhost:4000' --target=typescript --includes='src/*.tsx' --tagName=gql"    
   },
   "eslintConfig": {
     "extends": [

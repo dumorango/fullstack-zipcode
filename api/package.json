@@ -3,21 +3,23 @@
   "version": "1.0.0",
   "description": "Zipcode GraphQL API",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "compile:watch": "tsc --skipLibCheck -w src/index.ts",
+    "compile:watch": "npm run compile -- --watch",
     "run:watch": "nodemon src/index.js",
+    "compile": "tsc --target es6 --moduleResolution node --skipLibCheck src/index.ts",
+    "prestart": "npm run compile",
     "start": "run-p compile:watch run:watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "apollo-server": "^3.6.7",
-    "graphql": "^16.4.0"
+  "dependencies": {    
+    "apollo-datasource-rest": "^3.5.2",
+    "apollo-server": "^3.6.7"    
   },
   "devDependencies": {
     "nodemon": "^2.0.15",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^4.6.3"
+    "npm-run-all": "^4.1.5"    
   }
 }
