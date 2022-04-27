@@ -318,7 +318,7 @@ const Place = ({
           name: place.findPlaces[0].name,
           state: place.findPlaces[0].state,
         },
-        ...placeHistoryVar(),
+        ...placeHistoryVar().slice(0, 4),
       ]);
     },
   });
