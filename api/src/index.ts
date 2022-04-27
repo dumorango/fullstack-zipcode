@@ -1,44 +1,55 @@
 import { ApolloServer, gql } from "apollo-server";
+import { RESTDataSource } from "apollo-datasource-rest";
 
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
 const typeDefs = gql`
-  # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
-
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
-    test: String
+  type Place {
+    name: String!
+    state: String!
   }
 
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
   type Query {
-    books: [Book]
+    findPlaces(countryCode: String!, zipCode: String!): [Place!]!
   }
 `;
-
-const books = [
-  {
-    title: "The Awakening",
-    author: "Kate Chopin",
-  },
-  {
-    title: "City of Glass",
-    author: "Eduardo Galeano",
-  },
-];
+class ZippoAPI extends RESTDataSource {
+  baseURL = "https://api.zippopotam.us";
+  getPlace(countryCode: string, zipCode: string) {
+    return this.get<{
+      places: [
+        {
+          ["place name"]: string;
+          state: string;
+        }
+      ];
+    }>(`/${countryCode}/${zipCode}`);
+  }
+}
 
 const resolvers = {
   Query: {
-    books: () => books,
+    findPlaces: async (
+      _,
+      { countryCode, zipCode }: { countryCode: string; zipCode: string },
+      { dataSources: { zippoAPI } }: { dataSources: { zippoAPI: ZippoAPI } }
+    ) => {
+      const response = await zippoAPI.getPlace(countryCode, zipCode);
+      return response.places.map((place) => ({
+        name: place["place name"],
+        state: place.state,
+      }));
+    },
   },
 };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  dataSources: () => {
+    return {
+      zippoAPI: new ZippoAPI(),
+    };
+  },
+});
 
 // The `listen` method launches a web server.
 server.listen().then(({ url }) => {
