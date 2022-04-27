@@ -1,38 +1,24 @@
 import "./App.css";
-import { useState, useEffect } from "react";
-import {
-  ApolloClient,
-  InMemoryCache,
-  gql,
-} from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
+import { GetBooks } from "./__generated__/getBooks";
 
-const client = new ApolloClient({
-  uri: "/api",
-  cache: new InMemoryCache(),
-});
+const getBooks = gql`
+  query GetBooks {
+    books {
+      title
+      author
+      test
+    }
+  }
+`;
 
 function App() {
-  const [books, setBooks] = useState<any[]>([]);
-  useEffect(() => {
-    client
-      .query({
-        query: gql`
-          query GetBooks {
-            books {
-              title
-              author
-            }
-          }
-        `,
-      })
-      .then((response) => {
-        setBooks(response.data.books);
-      });
-  }, []);
+  const { data } = useQuery<GetBooks>(getBooks);
+
   return (
     <div className="App">
       <h1>Books</h1>
-      {books.map((book) => (
+      {data?.books?.map((book) => (
         <div key={book.title}> {book.title}</div>
       ))}
     </div>

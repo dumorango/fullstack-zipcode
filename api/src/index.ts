@@ -10,6 +10,7 @@ const typeDefs = gql`
   type Book {
     title: String
     author: String
+    test: String
   }
 
   # The "Query" type is special: it lists all of the available queries that
