@@ -1,16 +1,8 @@
 import { useState } from "react";
 import "./App.css";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useReactiveVar } from "@apollo/client";
 import { FindPlaces } from "./__generated__/FindPlaces";
-
-export const findPlacesQuery = gql`
-  query FindPlaces($countryCode: String!, $zipCode: String!) {
-    findPlaces(countryCode: $countryCode, zipCode: $zipCode) {
-      name
-      state
-    }
-  }
-`;
+import { placeHistoryVar } from "./apollo";
 
 function App() {
   const [countryCode, setCountryCode] = useState("US");
@@ -22,7 +14,6 @@ function App() {
       <h1>Find Places</h1>
       <form
         onSubmit={(evt) => {
-          console.log("submit", countryCode, zipCode);
           evt.preventDefault();
           setSubmitted(true);
         }}
@@ -31,47 +22,20 @@ function App() {
         <select
           value={countryCode}
           onChange={(evt) => {
-            setCountryCode(evt.target.value);
             setSubmitted(false);
+            setCountryCode(evt.target.value);
           }}
           name="country"
         >
-          <option value="CA"> Canada</option>
           <option value="US"> United States</option>
-          <option value="AF"> Afghanistan</option>
-          <option value="AL"> Albania</option>
-          <option value="DZ"> Algeria</option>
-          <option value="AS"> American Samoa</option>
+          <option value="CA"> Canada</option>
           <option value="AD"> Andorra</option>
-          <option value="AO"> Angola</option>
-          <option value="AI"> Anguilla</option>
-          <option value="AQ"> Antarctica</option>
-          <option value="AG"> Antigua and Barbuda</option>
-          <option value="AR"> Argentina</option>
-          <option value="AM"> Armenia</option>
-          <option value="AW"> Aruba</option>
+          <option value="AS"> Argentina</option>
+          <option value="AM"> America Samoa</option>
           <option value="AU"> Australia</option>
           <option value="AT"> Austria</option>
-          <option value="AZ"> Azerbaijan</option>
-          <option value="BS"> Bahamas</option>
-          <option value="BH"> Bahrain</option>
-          <option value="BD"> Bangladesh</option>
-          <option value="BB"> Barbados</option>
-          <option value="BY"> Belarus</option>
           <option value="BE"> Belgium</option>
-          <option value="BZ"> Belize</option>
-          <option value="BJ"> Benin</option>
-          <option value="BM"> Bermuda</option>
-          <option value="BT"> Bhutan</option>
-          <option value="BO"> Bolivia</option>
-          <option value="BQ"> Bonaire, Sint Eustatius, and Saba</option>
-          <option value="BA"> Bosnia and Herzegovina</option>
-          <option value="BW"> Botswana</option>
-          <option value="BV"> Bouvet Island</option>
           <option value="BR"> Brazil</option>
-          <option value="IO"> British Indian Ocean Territory</option>
-          <option value="VG"> British Virgin Islands</option>
-          <option value="BN"> Brunei</option>
           <option value="BG"> Bulgaria</option>
           <option value="BF"> Burkina Faso</option>
           <option value="BI"> Burundi</option>
@@ -294,16 +258,45 @@ function App() {
           required={true}
           value={zipCode}
           onChange={(evt) => {
-            setZipCode(evt.target.value);
             setSubmitted(false);
+            setZipCode(evt.target.value);
           }}
         />
         <input type="submit" value="Submit" />
       </form>
       {submitted && <Place zipCode={zipCode} countryCode={countryCode} />}
+      <PlaceHistoryList />
     </div>
   );
 }
+
+const PlaceHistoryList = () => {
+  const placeHistory = useReactiveVar(placeHistoryVar);
+  return (
+    <div>
+      <h1>History</h1>
+      <button onClick={() => placeHistoryVar([])}>Clean</button>
+      {placeHistory?.map((entry, i) => (
+        <div key={entry.zipCode + i}>
+          <h3>
+            {entry.countryCode} - {entry.zipCode}
+          </h3>
+          <div>{entry.name}</div>
+          <div>{entry.state}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export const FIND_PLACES = gql`
+  query FindPlaces($countryCode: String!, $zipCode: String!) {
+    findPlaces(countryCode: $countryCode, zipCode: $zipCode) {
+      name
+      state
+    }
+  }
+`;
 
 const Place = ({
   countryCode,
@@ -312,23 +305,38 @@ const Place = ({
   countryCode: string;
   zipCode: string;
 }) => {
-  const { data, called, loading } = useQuery<FindPlaces>(findPlacesQuery, {
+  const { data, called, loading } = useQuery<FindPlaces>(FIND_PLACES, {
     variables: {
       countryCode,
       zipCode,
     },
+    onCompleted: (place) => {      
+      placeHistoryVar([
+        {
+          countryCode,
+          zipCode,
+          name: place.findPlaces[0].name,
+          state: place.findPlaces[0].state,
+        },
+        ...placeHistoryVar(),
+      ]);
+    },
   });
+
+  const place = data?.findPlaces[0];
+
   if (called && loading) return <p>Loading ...</p>;
-  if (called && !data?.findPlaces) return <p style={{ color: "red" }}>Not Found :(</p>;
+  if (called && !data?.findPlaces)
+    return <p style={{ color: "red" }}>Not Found :(</p>;
 
   return (
     <>
-      {data?.findPlaces.map((place) => (
+      {place && (
         <div>
           <h2>{place.name}</h2>
           <p>{place.state}</p>
         </div>
-      ))}
+      )}
     </>
   );
 };
