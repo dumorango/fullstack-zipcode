@@ -5,11 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "compile:watch": "npm run compile -- --watch",
+    "build:watch": "npm run build -- --watch",
     "run:watch": "nodemon src/index.js",
-    "compile": "tsc --target es6 --moduleResolution node --skipLibCheck src/index.ts",
-    "prestart": "npm run compile",
-    "start": "run-p compile:watch run:watch",
+    "build": "tsc --target es6 --moduleResolution node --skipLibCheck src/index.ts",
+    "prestart": "npm run build",
+    "start": "run-p build:watch run:watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
