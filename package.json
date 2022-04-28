@@ -7,6 +7,7 @@
     "start:frontend": "npm run start --workspace=web",
     "start:backend": "npm run start  --workspace=api",
     "start": "run-p start:*",
+    "build": "npm run build --workspaces",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
